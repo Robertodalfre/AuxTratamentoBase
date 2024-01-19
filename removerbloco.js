@@ -27,20 +27,21 @@ arquivosCSV.forEach(arquivo => {
             if (!removerBloco) {
                 linhas.push(linha);
             }
-        })
+        })      
         .on('end', () => {
-           
-            const ultimaLinha = linhas[linhas.length - 1];
-            if (ultimaLinha) {
-                ultimaLinha[Object.keys(ultimaLinha).pop()] = ultimaLinha[Object.keys(ultimaLinha).pop()].replace(/;$/, '');
-            }
-
-       
+          
             const novoConteudo = linhas.map(linha => Object.values(linha).join(';')).join('\n');
-            fs.writeFileSync(caminhoCompleto, novoConteudo);
+                      
+            const cabecalho = Object.keys(linhas[0]).join(';');
+            const conteudoFinal = cabecalho + '\n' + novoConteudo;
+        
+         
+            if (!fs.existsSync(caminhoCompleto) || fs.readFileSync(caminhoCompleto, 'utf-8').trim() === '') {
+                fs.writeFileSync(caminhoCompleto, conteudoFinal);
+            } else {
+                fs.appendFileSync(caminhoCompleto, '\n' + novoConteudo);
+            }
+        
             console.log(`Bloco removido de ${arquivo}`);
         })
-        .on('error', (error) => {
-            console.error(`Erro ao processar ${arquivo}: ${error.message}`);
-        });
 });
